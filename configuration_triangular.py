@@ -1,3 +1,14 @@
+###############################################################################################################
+# This file contains the implementation of the triangular lattice configuration class.  A triangular          #
+# lattice configuration consists of a list of vertices in the triangular lattice, together with a prevector   #
+# which assigns integer values to the nodes.  The class includes as methods geometry functions (translate,    #
+# rotate, obtain neighbors) as well as implementations of the Fourier integral to obtain the corresponding    #
+# function xi, and optimization routines for P, Q, P_j, Q_j. Usage of this file is contained in               #
+# connected_component_triangular.py.                                                                          #
+###############################################################################################################
+
+#import standard libraries
+
 import numpy as np
 from scipy import signal
 from scipy import misc
@@ -13,7 +24,15 @@ import itertools as it
 import math
 from scipy.optimize import linprog
 
-# Cosine difference in optimization functional
+
+
+########################################################################################################
+# The next few functions provide a method of integrating in polar coordinates to avoid the singularity #
+# of the Green's function at 0. Since the Fourier integrals are over (R/Z)^2, a spherical neighborhood #
+# of 0 is integrated in polar coordinates, then the remainder of the integral is performed over the    #
+# torus.                                                                                               #
+########################################################################################################
+
 
 # Bump function which is 1 on [0,1/2] and 0 and [1, infty]
 
@@ -52,6 +71,9 @@ def SingularityIntegral(integrand):
     SingularIntegral = PolarCoordinateIntegrate(singular_integrand)
     return SmoothIntegral + SingularIntegral
 
+
+# Cosine difference in optimization functional
+
 def CosDif(x):
     return 1 - np.cos(2 *np.pi * x)
 
@@ -70,6 +92,8 @@ def ObjFnSafe(x, bins):
         slope = (CosDif(upper_pt) - CosDif(lower_pt))*4*bins
         return CosDif(lower_pt) + slope *(y-lower_pt)
 
+# The derivative of the linearized objective function
+
 def DerivSafe(x, bins):
     y = abs(x)
     if y < 0.25:
@@ -87,12 +111,17 @@ def DerivSafe(x, bins):
         else:
             return -slope
 
+# The second derivative of the linearized objective function
+
 def SecondDerivSafe(x):
     if (abs(x) < 0.25):
         return 4*np.pi**2 *np.cos(2*np.pi*x)
     else:
         return 0
 
+#######################################
+# Helper functions to work with lists #
+#######################################
 
 # Takes a list and returns it in sorted order
 
@@ -119,7 +148,11 @@ def MergeList(l1, l2):
 	    bisect.insort(returnlist,e)
     return returnlist
 
- ## The coordinates give the location of x v_1 + y v_2.  This object can be sorted in a sorted list, and can locate its neighbors in the lattice graph
+###################################################################################################
+# This class implements vertices in the triangular lattice. The coordinates give the location of  #
+# x v_1 + y v_2.  This object can be sorted in a sorted list, and can locate its neighbors in     #
+# the lattice graph.                                                                              #
+###################################################################################################
  
 class Vertex(object):
     def __init__(self, x_coor, y_coor):
@@ -168,7 +201,7 @@ class Vertex(object):
             return self.x_coor
         if key == 2:
             return self.y_coor
-        # Obtain neighbors of the vertex
+        # Obtain neighbors of the vertex 
     def ObtainNeighbors(self):
         v1 = Vertex(self.x_coor-1, self.y_coor)
         v2 = Vertex(self.x_coor, self.y_coor-1)
@@ -177,14 +210,14 @@ class Vertex(object):
 	v5 = Vertex(self.x_coor+1, self.y_coor-1)
 	v6 = Vertex(self.x_coor-1, self.y_coor+1)
         return SortList([v1,v2,v3,v4,v5,v6])
-        # Obtains the distance 2 neighborhood of the vertex
+        # Obtains the distance 2 neighborhood of the vertex 
     def ObtainDist2Neighbors(self):
 	l = self.ObtainNeighbors()
         returnlist = l
 	for e in l:
 	    returnlist = MergeList(returnlist, e.ObtainNeighbors())
         return returnlist
-        # Obtains the distance 3 neighborhood of the vertex
+        # Obtains the distance 3 neighborhood of the vertex 
     def ObtainDist3Neighbors(self):
         l = self.ObtainDist2Neighbors()
         l1 = l
@@ -198,13 +231,18 @@ class Vertex(object):
         for v in l:
             l1 = MergeList(l1, v.ObtainDist2Neighbors())
         return l1
+	# Display
     def __str__(self):
         return "(" +str(self.x_coor) + "," +str(self.y_coor) + ") "
     def __repr__(self):
         return "(" +str(self.x_coor) + "," +str(self.y_coor) + ") "
 
-
-# A configuration consists of a list of vertices in the support of a prevector.  The Laplacian is the function values at the points in the support.  This object can call an optimization program for either Q_j or P_j optimizations, or can use the Fourier integral to obtain the values of $\xi$ in a neighborhood of 0.
+####################################################################################################
+# A configuration consists of a list of vertices in the support of a prevector.  The Laplacian is  #
+# the function values at the points in the support.  This object can call an optimization program  #
+# for either Q_j or P_j optimizations, or can use the Fourier integral to obtain the values of     #
+# $\xi$ in a neighborhood of 0.                                                                    #
+####################################################################################################
     
 class Configuration(object):
     def __init__(self, vertices):
@@ -216,6 +254,7 @@ class Configuration(object):
         self.dist2neighbors = []
         self.dist3neighbors = []
         self.dist4neighbors = []
+# Initialize a list of neighbors
         for v in vertices:
             for n in v.ObtainNeighbors():
                 if NotPresent(self.neighbors, n) and NotPresent(self.vertices, n):
@@ -227,6 +266,7 @@ class Configuration(object):
         for v in vertices:
             self.dist3neighbors = MergeList(self.dist3neighbors, v.ObtainDist3Neighbors())
             self.dist4neighbors = MergeList(self.dist4neighbors, v.ObtainDist4Neighbors())
+# Initialize bounds on the coordinates
         self.x_max = vertices[0].x_coor
         self.x_min = vertices[0].x_coor
         self.y_max = vertices[0].y_coor
@@ -236,19 +276,23 @@ class Configuration(object):
             self.x_min = min(self.x_min, ve.x_coor)
             self.y_max = max(self.y_max, ve.y_coor)
             self.y_min = min(self.y_min, ve.y_coor)
+# Initialize an indicator function of the prevector, with value 1 at each vertex of the prevector
         self.prevector = np.zeros((self.x_max - self.x_min + 1, self.y_max-self.y_min + 1))
         for ve in vertices:
             self.prevector[ve.x_coor-self.x_min, ve.y_coor-self.y_min] =1
         self.value = -1
         self.bestValue = -1
+# The number of bins to use for optimizations P_j and Q_j
         self.NumBins = 4
 
+# Display
     def __str__(self):
         return str(self.prevector)
 
     def __repr__(self):
         return str(self.prevector)
 
+# Ordering
     def __lt__(self, other):
         if self.n < other.n:
             return True
@@ -337,6 +381,8 @@ class Configuration(object):
         else:
             return True
 
+# Given a configuration, add a node at vertex v
+
     def AddElem(self, v):
         newverts = []
         for v_ in self.vertices:
@@ -346,6 +392,7 @@ class Configuration(object):
 	    bisect.insort(newverts, v)
         return Configuration(newverts)
 
+# Obtain all those configurations which may be obtained by adding a single connected vertex
 
     def NextGeneration(self):
         gen = []
@@ -455,6 +502,8 @@ class Configuration(object):
         cc = self.Translate(-self.x_min, -self.y_min)
         return cc
 
+# Quotient by the symmetry group
+
     def RotRefNormalize(self):
         cc = self.Normalize()
         cc1 = (self.CCR()).Normalize()
@@ -472,11 +521,12 @@ class Configuration(object):
         return l[0]
 
 #This is the number of vertices in the support of the prevector, plus the number of vertices at distance 1
-    
+# The number of variables which appear in P and Q optimizations
     def NumVariables(self):
         return len(self.vertices) + len(self.neighbors)
 
 # This is the number of vertices in the support of the prevector
+# The number of constraints in the P and Q optimizations
     
     def NumVertexVariables(self):
         return len(self.vertices)
@@ -487,17 +537,22 @@ class Configuration(object):
     def setLaplaceConstraint(self, v):
 	self.LaplaceConstraint = v
 
+# Obtain the value of the linearized optimization function
+
     def ObtainFunctionValueSafe(self,x):
         retval = 0
         for y in x:
             retval += ObjFnSafe(y, self.NumBins)
         return retval
+# Obtain the derivative of the linearized optimization function
 
     def ObtainDerivativeSafe(self, x):
         deriv = np.zeros(self.NumVariables())
         for i in range(self.NumVariables()):
             deriv[i] = DerivSafe(x[i], self.NumBins)
         return deriv
+
+# Obtain the Hessian of the linearized optimization function
 
     def ObtainHessianSafe(self,x):
         Hessian = np.zeros((self.NumVariables(), self.NumVariables()))
@@ -506,19 +561,21 @@ class Configuration(object):
         return Hessian
 
 
-        
+# Obtain the objective function (not linearized)        
     def ObtainFunctionValue(self, x):
         retval = self.NumVariables()
         for y in x:
             retval -= np.cos(2 * np.pi * y)
         return retval
 
+# Obtain the derivative (not linearized)
     def ObtainDerivative(self, x):
         deriv = np.zeros(self.NumVariables())
         for i in range(self.NumVariables()):
             deriv[i] = 2 * np.pi * np.sin(2 * np.pi *x[i])
         return deriv
 
+# Obtain the Hessian (not linearized)
     def ObtainHessian(self, x):
         Hessian = np.zeros((self.NumVariables(), self.NumVariables()))
         for i in range(self.NumVariables()):
@@ -693,6 +750,8 @@ class Configuration(object):
         else:
             return self.value
 
+# Obtain the ell^2 norm of xi as a Fourier integral
+
     def ObtainL2(self):
         def FT(x,y):
             rv = 0
@@ -700,8 +759,9 @@ class Configuration(object):
                 rv += self.Laplacian[k] * cmath.exp(-2 *np.pi *1j *(self.vertices[k].x_coor*x + self.vertices[k].y_coor*y))
             return abs(rv)**2/(6 - 2.*(np.cos(2*np.pi *x)+ np.cos(2 * np.pi*y) + np.cos(2*np.pi * (x-y))))**2
         return SingularityIntegral(FT)
-    #dblquad(lambda t,x: FT(t,x), 0, 1, lambda x:0, lambda x:1, epsabs = 1.0e-11)[0]
-    
+
+# Obtain xi via Fourier integral
+
     def ObtainXiRepn(self, n):
         def FT(x,y):
             rv = 0
@@ -715,7 +775,6 @@ class Configuration(object):
                     rvalue = FT(x,y) * cmath.exp(-2 * np.pi *1j *((n-a)*x + (n-b)*y))
                     return rvalue.real
                 time_domain[a,b] = SingularityIntegral(integrand)
-                #integrate.nquad( lambda x, t: integrand(x,t), [[0,1],[0,1]], full_output = True)
         return time_domain
 
 # THIS FUNCTION RETURNS THE COSINE SUM OVER N_1 V_1 + N_2 V_2 SUCH THAT |N_1|, |N_2| <= N
