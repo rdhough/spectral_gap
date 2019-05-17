@@ -1,3 +1,13 @@
+
+##################################################################################################
+# This file provides the fcc lattice configuration class, which is used to calculate the extremal#
+# configurations which give the spectral factors of the fcc lattice. These functions are used in #
+# the iPython environment.  Example usage which obtains the spectral factors is given at the end #
+# of the file.                                                                                   #
+##################################################################################################
+
+# Import standard libraries
+
 import numpy as np
 from scipy import signal
 from scipy import misc
@@ -9,6 +19,13 @@ from numpy import sin, cos, pi
 from scipy.integrate import dblquad
 import cmath
 
+
+########################################################################################################
+# The next few functions provide a method of integrating in polar coordinates to avoid the singularity #
+# of the Green's function at 0. Since the Fourier integrals are over (R/Z)^3, a spherical neighborhood #
+# of 0 is integrated in polar coordinates, then the remainder of the integral is performed over the    #
+# torus.                                                                                               #
+########################################################################################################
 
 # Bump function which is 1 on [0,1/2] and 0 and [1, infty]
 
@@ -48,9 +65,14 @@ def SingularityIntegral(integrand):
     return SmoothIntegral + SingularIntegral
 
 
+# The following function is used in defining f(xi)
+
 def CosDif(x):
     return 1 - np.cos(2 *np.pi * x)
 
+#######################################
+# Helper functions to work with lists #
+#######################################
 
 def SortList(l):
     returnlist = []
@@ -130,7 +152,7 @@ class Vertex(object):
             return self.y_coor
         if key == 3:
             return self.z_coor
-# Definition of 12 neighbors
+# Definition of 12 nearest neighbors in the lattice
     def ObtainNeighbors(self):
         v1 = Vertex(self.x_coor + 1, self.y_coor, self.z_coor)
         v2 = Vertex(self.x_coor - 1, self.y_coor, self.z_coor)
@@ -146,7 +168,7 @@ class Vertex(object):
         v12 = Vertex(self.x_coor, self.y_coor+1, self.z_coor-1)
         return SortList([v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12])
     
-#Obtain the distance 2 neighborhood of a point
+#Obtain the graph-distance 2 neighborhood of a point
     def ObtainDist2Neighbors(self):
 	l = self.ObtainNeighbors()
         returnlist = l
@@ -154,38 +176,45 @@ class Vertex(object):
 	    returnlist = MergeList(returnlist, e.ObtainNeighbors())
         return returnlist
 
+#Obtain the graph-distance 4 neighborhood of a point
     def ObtainDist4Neighbors(self):
         l = self.ObtainDist2Neighbors()
         returnlist = l
         for e in l:
             returnlist = MergeList(returnlist, e.ObtainDist2Neighbors())
         return returnlist
-#Obtain the distance 6 neighborhood of a point
+
+#Obtain the graph-distance 6 neighborhood of a point
     def ObtainDist6Neighbors(self):
         l = self.ObtainDist4Neighbors()
         returnlist = l
         for e in l:
             returnlist = MergeList(returnlist, e.ObtainDist2Neighbors())
         return returnlist
-# Translate the point    
+# Matrix multiplication, used to quotient by the rotational symmetry group of the lattice    
     def Transform(self, w1, w2, w3):
         x_coor = self.x_coor * (w1.x_coor) + self.y_coor * (w2.x_coor) + self.z_coor *(w3.x_coor)
         y_coor = self.x_coor * (w1.y_coor) + self.y_coor * (w2.y_coor) + self.z_coor *(w3.y_coor)
         z_coor = self.x_coor * (w1.z_coor) + self.y_coor * (w2.z_coor) + self.z_coor *(w3.z_coor)
         return Vertex(x_coor, y_coor, z_coor)
+# Display
     def __str__(self):
         return "(" +str(self.x_coor) + "," +str(self.y_coor) +","+ str(self.z_coor)+ ") "
     def __repr__(self):
         return "(" +str(self.x_coor) + "," +str(self.y_coor) +","+ str(self.z_coor)+ ") "
 
 
-
-
+#######################################################################################################
+# This class implements configurations of vertices in the fcc lattice.  A configuration consists of a #
+# list of points in the lattice, together with their "Laplacian" prevector, which is an integer       #
+# valued function on the vertices.                                                                    #
+#######################################################################################################
     
 class Configuration(object):
     def __init__(self, vertices):
         self.vertices = SortList(vertices)
         self.n = len(vertices)
+# The Laplacian (prevector values) and Laplace constraint are intialized to 0 and must be set prior to use
 	self.LaplaceConstraint = np.zeros(self.n)
 	self.Laplacian = np.zeros(self.n)
         self.neighbors = []
@@ -198,6 +227,7 @@ class Configuration(object):
             for n in v.ObtainDist2Neighbors():
                 if NotPresent(self.dist2neighbors, n) and NotPresent(self.vertices, n):
                     bisect.insort(self.dist2neighbors, n)
+# Bounds for the values of the coordinates of the configuration
         self.x_max = vertices[0].x_coor
         self.x_min = vertices[0].x_coor
         self.y_max = vertices[0].y_coor
@@ -212,14 +242,23 @@ class Configuration(object):
             self.z_max = max(self.z_max, ve.z_coor)
             self.z_min = min(self.z_min, ve.z_coor)
         self.prevector = np.zeros((self.x_max - self.x_min + 1, self.y_max-self.y_min + 1, self.z_max - self.z_min+1))
+# prevector stores an indicator function (1 on the support) of the prevector, for display purposes
         for ve in vertices:
             self.prevector[ve.x_coor-self.x_min, ve.y_coor-self.y_min, ve.z_coor - self.z_min] =1
+# The value of the configuration
         self.value = -1
+# The number of bins to use in the programs P_j and Q_j, see the paper
         self.NumBins = 5
+# A list of rotations of the fcc lattice
+        self.rotation_list = []
+        self.set_rotations()
+        
+# Initial the list of rotations of the fcc lattice
+    def set_rotations(self):
+	self.rotation_list = []
         v0 = Vertex(0,0,0)
         v0_neighbors = v0.ObtainNeighbors()
-        self.rotation_list = []
-        for w1 in v0_neighbors:
+	for w1 in v0_neighbors:
             joint_neighbors = []
             for v1 in w1.ObtainNeighbors():
                 if not NotPresent(v0_neighbors, v1):
@@ -228,7 +267,7 @@ class Configuration(object):
                     for w3 in w2.ObtainNeighbors():
                         if not NotPresent(joint_neighbors, w3):
                             self.rotation_list.append([w1, w2, w3])
-        
+
     def __str__(self):
         return str(self.prevector)
 
@@ -334,27 +373,31 @@ class Configuration(object):
             newverts.append(v_)
         return Configuration(SortList(newverts))
 
-
+# Rotate the configuration
     def Transform(self, w1, w2, w3):
         newverts = []
         for v in self.vertices:
 	    newverts.append(v.Transform(w1,w2,w3))
         return Configuration(SortList(newverts))
 
+# Normalize the configuration by translating it to be squared against the upper octant
     def Normalize(self):
         cc = self.Translate(-self.x_min, -self.y_min, -self.z_min)
         return cc
 
-
+# The number of variables which appear in the programs P and Q
     def NumVariables(self):
         return len(self.vertices) + len(self.neighbors)
 
+# The number of constraints which appear in the programs P and Q
     def NumVertexVariables(self):
         return len(self.vertices)
 
+# Set the values of the prevector
     def setLaplacian(self, v):
 	self.Laplacian = v
 
+# Set the constraint for the optimization programs
     def setLaplaceConstraint(self, v):
 	self.LaplaceConstraint = v
 
@@ -489,7 +532,15 @@ def SmallXiSearch():
                 test_list.append(c)
     return test_list
             
+
+##################################################################################################################
+# Usage of the class is below.  This set of commands in iPython checks the extremal configuration and its value. #
+##################################################################################################################
     
+##################################################
+# Check the value of the extremal configuration. #
+##################################################
+
 #In [17]: c = Configuration([v0,v1])
 
 #In [18]: c.Laplacian = [1,-1]
@@ -500,36 +551,6 @@ def SmallXiSearch():
 
 
 
-
-#In [68]: c = Configuration([v])
-
-#In [69]: c.LaplaceConstraint = [1]
-
-#In [71]: c.ObtainOptimizationValue()
-#Out[71]: 0.006410256422361247
-
-#In [72]: l1
-#Out[72]: 
-#[(-1,0,0) ,
-# (-1,0,1) ,
-# (-1,1,0) ,
-# (0,-1,0) ,
-# (0,-1,1) ,
-# (0,0,-1) ,
-# (0,0,0) ,
-# (0,0,1) ,
-# (0,1,-1) ,
-# (0,1,0) ,
-# (1,-1,0) ,
-# (1,0,-1) ,
-# (1,0,0) ]
-#In [73]: c1 = Configuration(l1)
-
-#In [74]: c1.LaplaceConstraint = np.zeros(13)
-#In [76]: c1.LaplaceConstraint[6]=1
-
-#In [78]: c1.ObtainOptimizationValue()
-#Out[78]: 0.009579728060137939
 
 #In [79]: l2 = v.ObtainDist2Neighbors()
 
@@ -570,4 +591,18 @@ def SmallXiSearch():
 #[(5,0,0) , 0.0773350384581015]
 #[(5,1,0) , 0.08538143925970967]
 #[(6,0,0) , 0.09149888929233442]
+
+
+
+
+
+
+
+
+##### EOF ######
+
+
+
+
+
 
