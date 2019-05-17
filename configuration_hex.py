@@ -3,7 +3,8 @@
 # consists of a list of vertices in the triangular lattice, together with a prevector which assigns integer   #
 # values to the nodes.  The class includes as methods geometry functions (translate, rotate, obtain neighbors)#
 # as well as implementations of the Fourier integral to obtain the corresponding function xi, and optimization#
-# routines for P, Q, P_j, Q_j. Usage of this file is contained in connected_component_hex.py.                 #
+# routines for P, Q, P_j, Q_j. Usage of this file appears in the comment section at the bottom, which verifies#
+# the corresponding section of spectral_gap_comp.pdf in the repository.                                       #
 ###############################################################################################################
 
 
@@ -994,7 +995,9 @@ class Configuration(object):
 
 
 
-
+#######################################################################
+# The value of gamma_hex, with an error estimate, is calculated here. #
+#######################################################################
 
 #In [33]: c = Configuration([v0,v1,v2,v3,v4,v5])
 
@@ -1037,9 +1040,10 @@ class Configuration(object):
 
 
 
-################################################################################
-# The best connected components with height at most 1 are enumerated as follows#
-################################################################################
+##################################################################################
+# The best connected components with height at most 1 are enumerated as follows. #  
+# Such a connected component has an even number of nodes, and is in C2.          #
+##################################################################################
 
 # In [352]: c4 = Obtain4C2Components(cc_list_hex[3])
 
@@ -1103,7 +1107,9 @@ class Configuration(object):
 #22.1286423405
 #22.3193512369
 
-##############################################################################
+####################################################################################################
+# Next build a list of connected components that can have one, or two adjacent, nodes of height 2. #
+####################################################################################################
 
 # cc2_list_hex = RecursivelyBuildComponents2()
 
@@ -1115,9 +1121,10 @@ class Configuration(object):
 #Out[351]: 6
 
 
-#################################################
-#################################################
-# This calculation checks the values in Lemma 50 #
+##################################################
+# This calculation checks the values in Lemma 21 #
+##################################################
+
 #In [37]: v0 = Vertex(0,0,0)
 
 #In [38]: v1 = Vertex(0,0,1)
@@ -1129,8 +1136,6 @@ class Configuration(object):
 #In [41]: c.LaplaceConstraint = [2]
 
 #In [42]: c.ObtainValueCareful2()
-#/usr/lib/python2.7/dist-packages/scipy/optimize/_minimize.py:385: RuntimeWarning: Method SLSQP does not use Hessian information (hess).
-#  RuntimeWarning)
 #Out[42]: 3.4999999999978497
 
 #In [43]: c1 = Configuration([v0, v1])
@@ -1158,9 +1163,9 @@ class Configuration(object):
 #In [63]: c.ObtainValueCareful1()
 #Out[63]: 1.3537809676341894
 
-##########
-
-# This section checks the values in Lemma 52:
+###############################################
+# This section checks the values in Lemma 23: #
+###############################################
 
 #In [58]: c1.LaplaceConstraint = [1,1]
 
@@ -1219,8 +1224,9 @@ class Configuration(object):
 
 
 
-######################
-# This section checks the values in Lemma 55 #
+##############################################
+# This section checks the values in Lemma 26 #
+##############################################
 
 #In [28]: v0 = Vertex(0,0,0)
 
@@ -1231,13 +1237,14 @@ class Configuration(object):
 #In [31]: c.LaplaceConstraint = [1,1]
 
 #In [32]: c.ObtainSignedOptimizationCareful()
-#/usr/lib/python2.7/dist-packages/scipy/optimize/_minimize.py:385: RuntimeWarning: Method SLSQP does not use Hessian information (hess).
-#  RuntimeWarning)
 #Out[32]: 3.7955921367155465
 
 # Q({0,v,v1}, \nu) \geq P({0,v1},1) \geq 2.59
 
-########### This section reduces the number of connected components to be considered.  It is still necessary to eliminate the cases of 2's
+####################################################################################################
+# This section reduces the number of connected components to be considered.  It is still necessary #
+# to eliminate the cases of nodes of height 2, which is considered below.                          #
+####################################################################################################
 
 #In [14]: for v in cc_hex_list[0]:
 #    ...:     print v.value
@@ -1420,7 +1427,9 @@ class Configuration(object):
 
 #######
 
-# The value of Lemma 57 is checked here
+#########################################
+# The value of Lemma 27 is checked here #
+#########################################
 
 #In [28]: l
 #Out[28]: 
@@ -1507,9 +1516,9 @@ class Configuration(object):
 
 ####################
 
-
-# The values in Lemma 58 are verified here: #
-
+#############################################
+# The values in Lemma 28 are verified here: #
+#############################################
 
 #In [169]: l
 #Out[169]: [(-1,0,1) , (0,-1,1) , (0,0,0) , (0,0,1) , (0,1,0) , (1,0,0) ]
@@ -1719,13 +1728,15 @@ class Configuration(object):
 #11.930071881
 #15.1666084083
 
-
-########## This concludes the consideration of configurations having height at most 1
-
+##############################################################################
+# This concludes the consideration of configurations having height at most 1 #
+##############################################################################
 
 #@#@#@#@
 
-# The values in Lemma 59 are verified here #
+############################################
+# The values in Lemma 29 are verified here #
+############################################
 
 #In [336]: c1.vertices
 #Out[336]: [(0,0,0) , (0,0,1) ]
