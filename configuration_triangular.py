@@ -3,8 +3,8 @@
 # lattice configuration consists of a list of vertices in the triangular lattice, together with a prevector   #
 # which assigns integer values to the nodes.  The class includes as methods geometry functions (translate,    #
 # rotate, obtain neighbors) as well as implementations of the Fourier integral to obtain the corresponding    #
-# function xi, and optimization routines for P, Q, P_j, Q_j. Usage of this file is contained in               #
-# connected_component_triangular.py.                                                                          #
+# function xi, and optimization routines for P, Q, P_j, Q_j. Usage of this file is given in the comment       # 
+# section at the bottom of the file, verifying the claims made in spectral_gap_comp.pdf from the repository.  #
 ###############################################################################################################
 
 #import standard libraries
@@ -801,6 +801,249 @@ class Configuration(object):
         self.value += 2*np.pi**2 *L2_excess - np.pi**4 * L2_excess**2/3.
         error = np.pi**4 * L2_excess**2/3.
         return [self.value, error]
+
+
+# The optimization values in Lemma 13 are obtained here #
+
+#In [16]: c = Configuration([v])
+
+#In [17]: c.setLaplaceConstraint([2])
+
+#In [23]: c.NumBins = 100
+
+#In [24]: c.ObtainValueCareful()
+#Out[24]: 1.4322253399783444
+
+#In [25]: c.setLaplaceConstraint([1])
+
+#In [26]: c.ObtainValueCareful()
+#Out[26]: 0.4425614825454105
+
+# The optimization values in Lemma 14 are obtained here #
+
+#In [27]: v1 = Vertex(1,1)
+
+#In [28]: v2 = Vertex(2,0)
+
+#In [29]: c1 = Configuration([v,v1])
+
+#In [30]: c2 = Configuration([v,v2])
+
+#In [31]: c1.setLaplaceConstraint([2,1])
+
+#In [32]: c2.setLaplaceConstraint([2,1])
+
+#In [33]: c1.ObtainValueCareful()
+#Out[33]: 1.830901686216766
+
+#In [34]: c2.ObtainValueCareful()
+#Out[34]: 1.8519792470187433
+
+# The optimization value in Lemma 15 is obtained here #
+
+#In [41]: c = Configuration([v,v1,v2,v3,v4,v5,v6])
+
+#In [42]: c.vertices
+#Out[42]: [(-1,0) , (-1,1) , (0,-1) , (0,0) , (0,1) , (1,-1) , (1,0) ]
+
+#In [43]: c.LaplaceConstraint = [1,1,1,2,1,1,1]
+
+#In [44]: c.ObtainValueCareful()
+#Out[44]: 1.9233549553724203
+
+# The value in Lemma 16 is obtained here #
+
+#In [45]: c1 = Configuration([v,v1])
+#In [48]: c1.LaplaceConstraint = [2,2]
+
+#In [49]: c1.ObtainValueCareful()
+#Out[49]: 2.3050944784284324
+
+# The value of [-1,2,-1] is checked here#
+#In [15]: c.vertices
+
+#Out[15]: [(-1,0) , (0,0) , (1,0) ]
+
+#In [16]: c.Laplacian = [-1,2,-1]
+
+#In [17]: c.ObtainValue(5)
+#Out[17]: 2.231906422129347
+
+
+
+# The values in Lemma 17 are obtained here #
+
+# In [50]: v1 = Vertex(1,0)
+
+#In [51]: v2 = Vertex(1,1)
+
+#In [52]: v3 = Vertex(2,0)
+
+#In [53]: c1 = Configuration([v,v1])
+
+#In [54]: c2 = Configuration([v,v2])
+
+#In [55]: c3 = Configuration([v,v3])
+
+#In [56]: c1.LaplaceConstraint = [1,1]
+
+#In [57]: c2.LaplaceConstraint = [1,1]
+
+#In [58]: c3.LaplaceConstraint = [1,1]
+
+#In [59]: c1.ObtainValueCareful()
+#Out[59]: 0.6729389504071732
+
+#In [60]: c2.ObtainValueCareful()
+#Out[60]: 0.8509744236183668
+
+#In [61]: c3.ObtainValueCareful()
+#Out[61]: 0.8677764783693719
+
+# The value in Lemma 18 is obtained here
+
+#In [77]: l
+#Out[77]: [(-1,0) , (-1,1) , (0,-1) , (0,0) , (0,1) , (1,-1) , (1,0) ]
+
+#In [78]: c = Configuration(l)
+
+#In [79]: c.LaplaceConstraint = [0,0,0,1,0,0,0]
+
+#In [80]: c.ObtainSignedOptimizationCareful()
+#Out[80]: 0.9127672302181694
+
+# The value of the optimization program in Lemma 19 is obtained as follows
+
+#In [81]: v
+#Out[81]: (0,0) 
+
+#In [82]: v1 = Vertex(1,0)
+
+#In [83]: c = Configuration([v,v1])
+
+#In [84]: c.LaplaceConstraint = [1,1]
+
+#In [85]: c.ObtainSignedOptimizationCareful()
+#Out[85]: 1.1518781502677464
+
+# The value in Lemma 20 is obtained here
+
+#In [89]: l
+#Out[89]: 
+#[(-1,0) ,
+# (-1,1) ,
+# (0,-1) ,
+# (0,0) ,
+# (0,1) ,
+# (1,-1) ,
+# (1,0) ,
+# (1,1) ,
+# (2,-1) ,
+# (2,0) ]
+
+#In [93]: c.LaplaceConstraint = [0,0,0,1,0,0,-1,0,0,0]
+
+#In [94]: c.ObtainSignedOptimizationCareful()
+#Out[94]: 0.9717339887543212
+
+
+# Two pairs of adjacent vertices are ruled out here:
+
+# In [112]: l = ObtainDist3PairNeighbors()
+
+# In [115]: l1 = Obtain4C2Components(l)
+
+# In [118]: for c in l1:
+#     ...:     if c.ObtainValue(5) < 1.7:
+#     ...:         print c
+#     ...:     
+
+# These routines demonstrate that the best configuration on a single connected component is \nu_0
+
+# In [132]: cc_triangular = RecursivelyBuildComponents() 
+
+# In [147]: len(cc_triangular)
+# Out[147]: 8
+
+# In [148]: len(cc_triangular[7])
+# Out[148]: 0
+
+# In [133]: cc4 = Obtain4C2Components(cc_triangular[3])
+
+# In [134]: for c in cc4:
+#     ...:     val = c.ObtainValue(5)
+#     ...:     print val
+#     ...:     if val < 1.7:
+#     ...:         l.append(c)
+#     ...:   
+
+# In [135]: l
+# Out[135]: 
+# [[[ 1.  1.]
+#   [ 1.  1.]]]
+
+# In [139]: l = []
+
+# In [140]: for c in cc6:
+#     ...:     val = c.ObtainValue(5)
+#     ...:     print val
+#     ...:     if val < 1.7:
+#     ...:         l.append(c)
+#     ...: 
+
+# In [141]: l
+# Out[141]: []
+
+# The following rules out configurations with two connected components, one a singleton
+
+# In [151]: cc_triangular_1 = RecursivelyBuildComponents()
+
+# In [152]: len(cc_triangular_1)
+# Out[152]: 6
+
+# In [153]: len(cc_triangular_1[4])
+# Out[153]: 1
+
+# In [155]: cc_triangular_1[4]
+# Out[155]: 
+# [[[ 1.  1.  1.]
+#   [ 1.  1.  0.]]]
+
+# In [172]: l = ObtainSingletonC2_5(c)
+
+# In [175]: l1 = Obtain6C2Components(l)
+
+# In [177]: for c in l1:
+#     ...:     print c.ObtainValue(5)
+#     ...:     
+#5.47497574651
+#8.00858110709
+#5.47497574651
+#8.00858110709
+
+
+
+# The following rules out configurations with two connected components, one a pair of adjacent vertices with opposite sign
+
+# In [161]: cc_triangular_2[3]
+# Out[161]: 
+# [[[ 1.  1.]
+#   [ 1.  1.]]]
+
+
+# In [164]: len(cc_triangular_2)
+# Out[164]: 5
+
+############################
+
+# The value gamma_tri was calculated as follows.
+
+#In [10]: print c.ObtainValueL2Correction(10)
+#[1.6941656166936669, 5.294419716854114e-07]
+
+
+
+
 
 
 
