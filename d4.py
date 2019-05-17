@@ -1,3 +1,13 @@
+##################################################################################################
+# This file provides the D4 lattice configuration class, which is used to calculate the extremal #
+# configurations which give the spectral factors of the D4 lattice. These functions are used in  #
+# the iPython environment.  Example usage which obtains the spectral factors is given at the end #
+# of the file.                                                                                   #
+##################################################################################################
+
+# Import standard libraries
+
+
 import numpy as np
 from scipy import signal
 from scipy import misc
@@ -8,6 +18,13 @@ import scipy.integrate as integrate
 from numpy import sin, cos, pi
 from scipy.integrate import dblquad
 import cmath
+
+########################################################################################################
+# The next few functions provide a method of integrating in polar coordinates to avoid the singularity #
+# of the Green's function at 0. Since the Fourier integrals are over (R/Z)^4, a spherical neighborhood #
+# of 0 is integrated in polar coordinates, then the remainder of the integral is performed over the    #
+# torus.                                                                                               #
+########################################################################################################
 
 
 # Bump function which is 1 on [0,1/2] and 0 and [1, infty]
@@ -33,7 +50,7 @@ def SphericalCoordinateIntegrate(integrand):
         
     return integrate.nquad(lambda r, thet1, thet2, thet3: spherical_integrand(r,thet1, thet2, thet3), [[0, .5],[0,np.pi],[0, np.pi], [0, 2*np.pi]])[0]
 
-# Integration over the torus (R/Z)^3 with singularity at 0
+# Integration over the torus (R/Z)^4 with singularity at 0
 
 def SingularityIntegral(integrand):
     def smooth_integrand(x,y,z,w):
@@ -47,11 +64,14 @@ def SingularityIntegral(integrand):
     SingularIntegral = SphericalCoordinateIntegrate(singular_integrand)
     return SmoothIntegral + SingularIntegral
 
-
+# The following function is used in defining f(xi)
 
 def CosDif(x):
     return 1 - np.cos(2 *np.pi * x)
 
+#######################################
+# Helper functions to work with lists #
+#######################################
 
 def SortList(l):
     returnlist = []
@@ -72,6 +92,8 @@ def MergeList(l1, l2):
 	    bisect.insort(returnlist,e)
     return returnlist
 
+
+# This implements a point in the D4 lattice
 
 class Vertex(object):
     def __init__(self, w_coor, x_coor, y_coor, z_coor):
@@ -142,7 +164,7 @@ class Vertex(object):
             return self.y_coor
 	if key == 4:
 	    return self.z_coor
-# Obtains the neighbors of the point        
+# Obtains the 24 nearest neighbors of the point        
     def ObtainNeighbors(self):
 	v1 = Vertex(self.w_coor + 1, self.x_coor, self.y_coor, self.z_coor)
 	v2 = Vertex(self.w_coor - 1, self.x_coor, self.y_coor, self.z_coor)
@@ -170,7 +192,7 @@ class Vertex(object):
 	v24 = Vertex(self.w_coor-.5, self.x_coor -.5, self.y_coor - .5, self.z_coor - .5)	
         return SortList([v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12,v13,v14,v15,v16,v17,v18,v19,v20,v21,v22,v23,v24])
 
-# Obtains the distance 2 neighborhood of the point    
+# Obtains the graph-distance 2 neighborhood of the point    
     def ObtainDist2Neighbors(self):
 	l = self.ObtainNeighbors()
         returnlist = l
@@ -178,7 +200,7 @@ class Vertex(object):
 	    returnlist = MergeList(returnlist, e.ObtainNeighbors())
         return returnlist
 
-# Obtains the distance 3 neighborhood of the point    
+# Obtains the graph-distance 3 neighborhood of the point    
     def ObtainDist3Neighbors(self):
         l = self.ObtainDist2Neighbors()
         returnlist = l
@@ -186,7 +208,7 @@ class Vertex(object):
             returnlist = MergeList(returnlist, e.ObtainNeighbors())
         return returnlist
 
-# Obtains the distance 4 neighborhood of the point    
+# Obtains the graph-distance 4 neighborhood of the point    
     def ObtainDist4Neighbors(self):
         l = self.ObtainDist3Neighbors()
         returnlist = l
@@ -194,6 +216,7 @@ class Vertex(object):
             returnlist = MergeList(returnlist, e.ObtainNeighbors())
         return returnlist
     
+# Display
     def __str__(self):
         return "(" +str(self.w_coor)+","+str(self.x_coor) + "," +str(self.y_coor) +","+ str(self.z_coor)+") "
     def __repr__(self):
@@ -220,15 +243,24 @@ class Vertex(object):
         v2 = Vertex(abs(v1.w_coor), abs(v1.x_coor), abs(v1.y_coor), abs(v1.z_coor))
         return v2
     
+
+#######################################################################################################
+# This class implements configurations of vertices in the D4 lattice.  A configuration consists of a  #
+# list of points in the lattice, together with their "Laplacian" prevector, which is an integer       #
+# valued function on the vertices.                                                                    #
+#######################################################################################################
+   
     
 class Configuration(object):
     def __init__(self, vertices):
         self.vertices = SortList(vertices)
         self.n = len(vertices)
+# The Laplacian (prevector values) and Laplace constraint are intialized to 0 and must be set prior to use
 	self.LaplaceConstraint = np.ones(self.n)
 	self.Laplacian = np.zeros(self.n)
         self.neighbors = []
         self.dist2neighbors = []
+# Set the neighbors of the point
         for v in vertices:
             for n in v.ObtainNeighbors():
                 if NotPresent(self.neighbors, n) and NotPresent(self.vertices, n):
@@ -237,6 +269,7 @@ class Configuration(object):
             for n in v.ObtainDist2Neighbors():
                 if NotPresent(self.dist2neighbors, n) and NotPresent(self.vertices, n):
                     bisect.insort(self.dist2neighbors, n)
+# Bounds for the values of the coordinates of the configuration
 	self.w_max = vertices[0].w_coor
 	self.w_min = vertices[0].w_coor
         self.x_max = vertices[0].x_coor
@@ -259,12 +292,13 @@ class Configuration(object):
         v0 = Vertex(0,0,0,0)
         v0_neighbors = v0.ObtainNeighbors()
    
+# Display
     def __str__(self):
         return str(self.prevector)
 
     def __repr__(self):
         return str(self.prevector)
-
+# Ordering
     def __lt__(self, other):
         if self.n < other.n:
             return True
@@ -353,15 +387,19 @@ class Configuration(object):
         else:
             return True
 
+# The number of variables which appear in the programs P and Q
     def NumVariables(self):
         return len(self.vertices) + len(self.neighbors)
 
+# The number of constraints which appear in the programs P and Q
     def NumVertexVariables(self):
         return len(self.vertices)
 
+# Set the values of the prevector
     def setLaplacian(self, v):
 	self.Laplacian = v
 
+# Set the constraint for the optimization programs
     def setLaplaceConstraint(self, v):
 	self.LaplaceConstraint = v
 
@@ -426,25 +464,12 @@ class Configuration(object):
 
 
 #########################################################################################################################
-# This calculation checks that for each i= 1, 2, 3, 4 there is a single element of norm i up to multiplication by a unit#
+# This calculation checks that for each i= 1, 2, 3, 4 there is a single element of norm i up to multiplication by a unit.  The first and second Lemma numbers corresponding to the corresponding lemma in the short or long version of the paper.  The second number is the lemma number in the version in the repository.#
 #########################################################################################################################
 
-#In [57]: l = v0.ObtainDist2Neighbors()
-
-#In [58]: l1 = []
-
-#In [59]: for v in l:
-#    ...:     v1 = v.Normalize()
-#    ...:     if NotPresent(l1, v1):
-#    ...:         bisect.insort(l1, v1)
-#    ...:         
-
-#In [60]: l1
-#Out[60]: [(0,0,0,0) , (1,0,0,0) , (1,1,0,0) , (1.5,0.5,0.5,0.5) , (2,0,0,0) ]
-
-#############################################
-# The values in Lemma 63 are confirmed here #
-#############################################
+################################################
+# The values in Lemma 15/33 are confirmed here #
+################################################
 
 #In [50]: l = v0.ObtainNeighbors()
 
@@ -480,9 +505,9 @@ class Configuration(object):
 #In [66]: c.ObtainOptimizationValue()
 #Out[66]: 0.0023398440686087842
 
-#########################################
-#The table in Lemma 63 is confirmed here#
-#########################################
+############################################
+#The table in Lemma 15/33 is confirmed here#
+############################################
 #In [67]: v0
 #Out[67]: (0,0,0,0) 
 
@@ -501,6 +526,8 @@ class Configuration(object):
 #In [74]: c3 = Configuration([v0,v3])
 
 #In [75]: c4 = Configuration([v0,v4])
+
+### The first column in the table is obtained here ###
 
 #In [76]: c1.ObtainOptimizationValue()
 #Out[76]: 0.0035714285714691296
@@ -522,6 +549,8 @@ class Configuration(object):
 
 #In [83]: c4.LaplaceConstraint = [1,-1]
 
+### The second column in the table is obtained here ###
+
 #In [84]: c1.ObtainOptimizationValue()
 #Out[84]: 0.003125000000023783
 
@@ -534,8 +563,7 @@ class Configuration(object):
 #In [87]: c4.ObtainOptimizationValue()
 #Out[87]: 0.0033388981636228786
 
-####################
-   #%#%#%#%#%
+
 ##########################################
 # The case of gamma_D4,0 is checked here #
 ##########################################
@@ -550,13 +578,15 @@ class Configuration(object):
 
 #In [170]: xi2 = 0.00383973
 
+# Calculation of gamma_D4,0
+
 #In [73]: 2*np.pi**2 * alpha - np.pi**4*alpha**2/6.
 #Out[73]: 0.07555387329526285
 
 #In [74]: np.pi**4*alpha**2/6.
 #Out[74]: 0.00023935891872682344
 
-
+# Calculation of Gamma_D4,0
 
 #In [75]: 4/(.075554-.00024)
 #Out[75]: 53.110975383062915
@@ -580,11 +610,14 @@ class Configuration(object):
 #In [10]: l = v0.ObtainDist4Neighbors()
 #In [11]: l1 = []
 
+
 #In [12]: for v in l:
 #    ...:     v1 = v.Normalize()
 #    ...:     if NotPresent(l1, v1):
 #    ...:         bisect.insort(l1,v1)
 #    ...:         
+
+### l1 is a list of vertices whose distance from 0 is at most 4, taken up to multiplication by a unit
 
 #In [13]: len(l1)
 #Out[13]: 25
@@ -681,6 +714,7 @@ class Configuration(object):
 #23
 #0.00468603244899
 
+### The best value corresponds to (1,0,0,0), and all other values exceed alpha, so are not extremal. ###
 
 ############################################
 # The case of gamma_D4,1 is checked here   #
@@ -698,6 +732,8 @@ class Configuration(object):
 
 #In [173]: xi2 = 0.0022421875
 
+#Calculation of gamma_D4,1
+
 #In [174]: 2*np.pi**2 * xi2 - np.pi**4*xi2**2/3.
 #Out[174]: 0.04409576892600773
 
@@ -709,6 +745,8 @@ class Configuration(object):
 
 #In [183]: 3/(.0440957+.000163239)
 #Out[183]: 67.78291725429749
+
+#Calculation of Gamma_D4,1
 
 #In [184]: (68.28663661705635 +67.78291725429749)/2
 #Out[184]: 68.03477693567692
@@ -735,6 +773,8 @@ class Configuration(object):
 
 #In [186]: xi2 = 0.00198003
 
+# Calculation of gamma_D4,2
+
 #In [187]: 2*np.pi**2 * xi2 - np.pi**4 * xi2**2/3.
 #Out[187]: 0.03895692754698546
 
@@ -746,6 +786,8 @@ class Configuration(object):
 
 #In [190]: 2./(.0389569275469 + .0001272980575)
 #Out[190]: 51.17153964475236
+
+#Calculation of Gamma_D4,2
 
 #In [191]: (51.5070585606 + 51.1715396447)/2
 #Out[191]: 51.33929910265
@@ -797,6 +839,8 @@ class Configuration(object):
 
 #In [193]: xi2 = 0.0018738
 
+# Calculation of gamma_D4,3
+
 #In [194]: 2*np.pi**2 * xi2 - np.pi**4 * xi2**2/3.
 #Out[194]: 0.036873324241847194
 
@@ -808,6 +852,8 @@ class Configuration(object):
 
 #In [197]: 1./(.0368733242418+.0001140052116)
 #Out[197]: 27.036285527450442
+
+# Calculation of Gamma_D4,3
 
 #In [198]: (27.20398599273397 + 27.036285527450442)/2
 #Out[198]: 27.120135760092204
@@ -876,6 +922,8 @@ class Configuration(object):
 #     ...: 
 #Out[400]: 0.0019483970934383206
 
+# This value exceeds alpha, which rules out (0,0,0,0), (1,1,0,0), (1,-1,0,0), (2,0,0,0)
+
 ##############################################
 # The second optimization program starts here#
 ##############################################
@@ -924,6 +972,8 @@ class Configuration(object):
 #In [421]: 0.008328160850749503/4
 #Out[421]: 0.002082040212687376
 
+# This value exceeds alpha, which rules out (0,0,0,0), (1,1,0,0), (2,-2,0,0), (3,-1,0,0)
+
 #####################################################################################################################################
 #The remaining possibilities have one or two distance 2 displacements from the reflecting hyperplanes.  These cases are checked here#
 #####################################################################################################################################
@@ -969,8 +1019,11 @@ class Configuration(object):
 
 #Out[2]= {{x -> 0.00182809}, {x -> 0.302135}}
 
+# alpha = 0.00182809
 
 #In [200]: xi2 = 0.001817073
+
+# Calculation of gamma_D4,4
 
 #In [201]: 2*np.pi**2 * xi2 - np.pi**4 * xi2**2/3.
 #Out[201]: 0.035760376394485836
@@ -993,6 +1046,8 @@ class Configuration(object):
 #In [7]: L2_D4_4_reflections_double
 #Out[7]: (0.0018694703725885338, 1.4890326042522233e-08)
 
+# This exceeds alpha = 0.00182809
+
 #####################
 # Two distances of 2#
 #####################
@@ -1004,6 +1059,8 @@ class Configuration(object):
 
 #In [5]: L2_D4_4_reflections_double_double
 #Out[5]: (0.001955095910976028, 1.4899986471962798e-08)
+
+# This exceeds alpha = 0.00182809
 
 ########################
 # Three distances of 2 #
@@ -1017,9 +1074,16 @@ class Configuration(object):
 #In [112]: L2_D4_4_reflections_double_double_double
 #Out[112]: (0.002097967486433312, 1.4899806817847837e-08)
 
+# This exceeds alpha = 0.00182809
+
 #######################################################################################
 ##### These calculations show that distance 2 to each hyperplane suffices #############
 #######################################################################################
+
+#####################################################################
+# The first case considered is a node with distance 1 to P1, P2, P3 #
+#####################################################################
+
 
 #In [422]: v0 = Vertex(0,0,0,0)
 
@@ -1100,10 +1164,15 @@ class Configuration(object):
 #In [459]: 0.014920089177509765/8
 #Out[459]: 0.0018650111471887206
 
+# This exceeds alpha
+
 ###########################################
 # The second estimate starts here #########
 ###########################################
 
+#########################################################################
+# This case considers a node with distance 1 to P1, 1 to P2 and 2 to P3 #
+#########################################################################
 
 #In [460]: v0 = Vertex(0,0,0,0)
 
@@ -1181,9 +1250,15 @@ class Configuration(object):
 #In [496]: 0.01548796415/8
 #Out[496]: 0.00193599551875
 
+# This exceeds alpha
+
 ##################################
 # The third estimate starts here #
 ##################################
+
+#####################################################################
+# The third case has a node with distance 1 to P1, 2 to P2, 2 to P3 #
+#####################################################################
 
 #In [497]: v0
 #Out[497]: (0,0,0,0) 
@@ -1265,6 +1340,7 @@ class Configuration(object):
 #     ...: 
 #Out[532]: 0.0020748646952762064
 
+# This exceeds alpha
 
 ##############################################################################################
 # This concludes the check that the point appears at distance at most 2 from each hyperplane #
