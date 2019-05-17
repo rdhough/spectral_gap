@@ -1,3 +1,8 @@
+############################################################################################################
+# This file builds on configuration_triangular.py to implement functions which recursively build connected #
+# component configurations, assign them C^2 values as prevectors, and combine several connected components.#
+############################################################################################################
+
 import numpy as np
 from scipy import signal
 from scipy import misc
@@ -16,7 +21,7 @@ def GetCandidates(l):
                 bisect.insort(Candidates, n)
     return Candidates
 
-# starts from a configuration with a single vertex, and then builds configurations which can be obtained by adding a neighboring vertex.  If at some point the optimization value of a configuration is larger than the target value, then no futher configurations are built on top of this one.
+# Starting from a configuration with a single vertex, configurations are built which can be obtained by adding a neighboring vertex.  If at some point the optimization value of a configuration is larger than the target value, then no futher configurations are built on top of the current one.
 
 def RecursivelyBuildComponents():
     v = Vertex(0,0)
@@ -35,7 +40,7 @@ def RecursivelyBuildComponents():
     return ConfigurationList
 
 
-#Given a list of configurations on 4 vertices, this finds ways of assigning +/- to the vertices to make them have moment 0.  
+#Given a list of configurations on 4 vertices, this finds ways of assigning +/- to the vertices to make them have moment 0 (this is the condition of being C^2).  
 
 def Obtain4C2Components(l):
     returnlist = []
@@ -55,6 +60,7 @@ def Obtain4C2Components(l):
             cc.setLaplaceConstraint(laplace)
             returnlist.append(cc)
     return returnlist
+
 #Similar to above, but handles configurations with 6 vertices
 
 def Obtain6C2Components(l):
@@ -122,3 +128,6 @@ def ObtainSingletonC2_5(c):
                 c2 = c.AddElem(v)
                 l.append(c2)
     return l
+
+
+
