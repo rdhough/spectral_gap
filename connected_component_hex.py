@@ -50,7 +50,7 @@ def GetCandidates22(l):
 # In the recurssion building components of height 1, given a list of configurations of a certain size, generate the next size configurations
 
 def GenNextLevel(l, numbins):
-    counter = 0;
+    counter = 0
     CurrentLevel = []
     NextLevel = []
     for c in l:
@@ -67,7 +67,7 @@ def GenNextLevel(l, numbins):
             bisect.insort(CurrentLevel, c)
     return [CurrentLevel, NextLevel]
 
-# Recursively build all admissible components with nodes of height 1
+# Recursively build all admissible components with nodes of height 1, currently this is stopped at configurations of size 6
 
 def RecursivelyBuildComponents():
     v = Vertex(0,0,0)
@@ -149,7 +149,7 @@ def Obtain4C2Components(l):
             returnlist.append(cc)
     return returnlist
 
-# Given a list of configurations of size 6, tests all assignments of signs such that the resulting configuration is C2
+# Given a list of configurations of size 6, tests all assignments of signs such that the resulting configuration is C2.  These calculations use that v = 1/3 (v_1 + v_2).
 
 def Obtain6C2Components(l):
     returnlist = []
@@ -184,8 +184,6 @@ def Obtain8C2Components(l):
         for v in c.vertices:
             vx += 3*v[1]+ v[3] 
             vy += 3*v[2] + v[3] 
-        print c
-        print [vx,vy]
         verts = c.vertices
         for i in range(1,6):
             for j in range(i+1,7):
@@ -214,7 +212,24 @@ def ObtainHeight2Configs(l):
                 return_list.append([c, c.LaplaceConstraint, val])
     return return_list
 
+# Given a vector vx*v1 + vy*v2 + vz*v, returns the point in the hex tiling in standard form as a Vertex
+def ObtainNormalizedVertex(vx, vy, vz):
+    if vz %3 == 0:
+        vx_= vx+ vz//3
+        vy_= vy + vz//3
+        vz_ = 0        
+    elif vz%3 == 1:
+        vx_ = vx + (vz-1)//3
+        vy_ = vy + (vz-1)//3
+        vz_ = 1
+    v = Vertex(int(vx_), int(vy_), int(vz_))
+    return v
+
+
+
 # Given a configuration of size 3, iterates over all assignments of signs, and determines the location of a singleton such that the configuration is in C2
+
+
 
 def FindSize3SingletonPair(c):
     returnlist = []
@@ -223,6 +238,7 @@ def FindSize3SingletonPair(c):
         c1.Laplacian = np.ones(3)
         c1.Laplacian[i_] = -1
         v1 = c1.vertices[i_]
+	v = ObtainSingletonVertex(c1.vertices, c1.Laplacian)
         vx = 0
         vy = 0
         vz = 0
@@ -231,15 +247,7 @@ def FindSize3SingletonPair(c):
             vy += c1.Laplacian[m] * c1.vertices[m].y_coor
             vz += c1.Laplacian[m] * c1.vertices[m].parity
         if vz % 3 != 2:
-            if vz %3 == 0:
-                vx += vz//3
-                vy += vz//3
-                vz = 0
-            elif vz%3 == 1:
-                vx += (vz-1)//3
-                vy += (vz-1)//3
-                vz = 1
-            v = Vertex(int(vx), int(vy), int(vz))
+            v = ObtainNormalizedVertex(vx, vy, vz) 
             if NotPresent(c1.vertices, v) and NotPresent(c1.dist2neighbors, v):
                 c2 = c1.AddElem(v)
                 c2.Laplacian = np.ones(4)
@@ -269,15 +277,7 @@ def FindSize5SingletonPair(c):
             vy += c1.Laplacian[m] * c1.vertices[m].y_coor
             vz += c1.Laplacian[m] * c1.vertices[m].parity
         if vz % 3 != 2:
-            if vz %3 == 0:
-                vx += vz//3
-                vy += vz//3
-                vz = 0
-            elif vz %3 == 1:
-                vx += (vz-1)//3
-                vy += (vz-1)//3
-                vz = 1
-            v = Vertex(int(vx), int(vy), int(vz))
+            v = ObtainNormalizedVertex(vx, vy, vz) 
             if NotPresent(c1.vertices, v) and NotPresent(c1.dist2neighbors, v):
                 c2 = c1.AddElem(v)
                 c2.Laplacian = np.ones(6)
