@@ -197,7 +197,9 @@ In their previous work, the authors studied the abelian sandpile model on graphs
 
 \maketitle
 
-\section{Introduction} Sandpile dynamics on a graph are an important model of self-organized criticality, which have been studied extensively in the statistical physics literature since their introduction by Bak, Tang and Wiesenfeld \cite{BTW88}, see \cite{D89}, \cite{DM92}, \cite{BIP93}, \cite{P94}, \cite{I94}, \cite{DFF03}, \cite{LH02},  \cite{PR05}, \cite{JPR06}, \cite{SV09}, \cite{LP10}, \cite{DS10}, \cite{FLW10},  \cite{G16}, \cite{KW16}, \cite{NOT17}, and \cite{LPS16}, \cite{PS13}.  The article \cite{KS16} provides an accessible introduction, and computes several sandpile statistics for varying graph geometries.    In \cite{HJL17} and \cite{HS19} the authors evaluated the spectral gap, asymptotic mixing time and proved a cut-off phenomenon in sandpile dynamics on a growing piece of a plane or space tiling given periodic or open boundary conditions.  In particular, in the article \cite{HS19}  \emph{spectral factors} related to the harmonic modulo 1 functions on the tiling are identified, and these factors are demonstrated to control the spectral gap and asymptotic mixing time of the dynamics.  The purpose of this article is to describe a general method of calculating the spectral factors numerically, and to perform this calculation in specific examples.  A consequence of these calculations is that, while in two dimensions, the tilings considered have the same asymptotic mixing time to top order with either open or periodic boundary, for the $\Dfour$ lattice in four dimensions, the asymptotic mixing time with an open boundary is longer, and is controlled by the configuration of the sandpile near its 3 dimensional boundary.  Also, it is demonstrated that for all $d$ sufficiently large, for the $\zed^d$ lattice the asymptotic mixing time with periodic and open boundary is the same to top order. 
+\section{Introduction} When considering Markovian dynamics in a  system, important quantities in describing the behavior are the spectral gap, or difference between the largest and second largest eigenvalue of the transition kernel, and the convergence profile to equilibrium including the mixing time and transition window between approximately non-uniform and stationarity.  A central topic in the mixing of large systems is the \emph{cut-off phenomenon}, in which, as the system grows, the transition period to equilibrium is on an asymptotically shorter time scale than the mixing time \cite{D96}.
+
+Sandpile dynamics on a graph, which are Markovian, are an important model of self-organized criticality, which have been studied extensively in the statistical physics literature since their introduction by Bak, Tang and Wiesenfeld \cite{BTW88}, see \cite{D89}, \cite{DM92}, \cite{BIP93}, \cite{P94}, \cite{I94}, \cite{DFF03}, \cite{LH02},  \cite{PR05}, \cite{JPR06}, \cite{SV09}, \cite{LP10}, \cite{DS10}, \cite{FLW10},  \cite{G16}, \cite{KW16}, \cite{NOT17}, and \cite{LPS16}, \cite{PS13}.  The article \cite{KS16} provides an accessible introduction, and computes several sandpile statistics for varying graph geometries.    In \cite{HJL17} and \cite{HS19} the authors evaluated the spectral gap, asymptotic mixing time and proved a cut-off phenomenon in sandpile dynamics on a growing piece of a plane or space tiling given periodic or open boundary conditions.  In particular, in the article \cite{HS19}  \emph{spectral factors} related to the harmonic modulo 1 functions on the tiling are identified, and these factors are demonstrated to control the spectral gap and asymptotic mixing time of the dynamics.  The purpose of this article is to describe a general method of calculating the spectral factors numerically, and to perform this calculation in specific examples.  A consequence of these calculations is that, while in two dimensions, the tilings considered have the same asymptotic mixing time to top order with either open or periodic boundary, for the $\Dfour$ lattice in four dimensions, the asymptotic mixing time with an open boundary is longer, and is controlled by the configuration of the sandpile near its 3 dimensional boundary.  Also, it is demonstrated that for all $d$ sufficiently large, for the $\zed^d$ lattice the asymptotic mixing time with periodic and open boundary is the same to top order. 
 
 
 
@@ -207,7 +209,7 @@ A $d$ dimensional periodic plane or space tiling is a connected graph $\sT =(V,E
 \[
  \Delta f(v) = \deg(v) f(v) - \sum_{(v,w) \in E}f(w).
 \]
-Given a function $f$ on $\sT$, say that $f$ is \emph{harmonic modulo 1} if $\Delta f \equiv 0 \bmod 1$ and denote the set of such functions $\sH(\sT)$. Let $C^1(\sT)$ denote the set of integer valued functions on $\sT$ which are finitely supported and have sum 0.
+Given a function $f\in \ell^2(\sT)$, say that $f$ is \emph{harmonic modulo 1} if $\Delta f \equiv 0 \bmod 1$ and denote the set of such functions $\sH^2(\sT)$. Let $C^1(\sT)$ denote the set of integer valued functions on $\sT$ which are finitely supported and have sum 0.
 In \cite{HS19} the \emph{spectral parameter} of a tiling is defined to be
 \begin{equation}
  \gamma = \inf \left\{ \sum_{x \in \sT} 1 - \cos(2\pi \xi_x):\Delta \xi \in C^1(\sT), \xi \not \equiv 0 \bmod 1\right\}.
@@ -237,9 +239,9 @@ In this article, the results regarding spectral factors concern tilings which, a
 
 
 Given a set $S \subset \{1, 2, ..., d\}$, let $\fS_S$ be the group generated by reflections in the hyperplanes $\{H_{j,0}, j \in S\}$ and let $\sA_S(\sT)$ be functions which are anti-symmetric under reflection in each plane $H_{j,0}, j \in S$.
-Let $\sH_S(\sT)$ denote those harmonic modulo 1 functions in $\sA_S(\sT)$.  Again, for $0 \leq i \leq d$ define the \emph{spectral parameters}\footnote{Note that, in the definition of $\sH_S(\sT)$, $\Delta \xi$ is not required to be in $C^1(\sT)$, so that the definitions of $\gamma$ and $\gamma_0$ differ, although the two notions are shown in \cite{HS19} to coincide in dimensions at most 4.}
+Let $\sH_S^2(\sT)$ denote those $\ell^2$ harmonic modulo 1 functions in $\sA_S(\sT)$.  Again, for $0 \leq i < d$ define the \emph{spectral parameters}\footnote{Note that, in the definition of $\sH_S^2(\sT)$, $\Delta \xi$ is not required to be in $C^1(\sT)$, so that the definitions of $\gamma$ and $\gamma_0$ differ, although the two notions are shown in \cite{HS19} to coincide in dimensions at most 4.}
 \begin{equation}
- \gamma_i =  \inf_{\substack{S \subset \{1, 2, ..., d\}\\ |S| = i}} \inf_{\substack{\xi \in \sH_S(\sT)\\ \xi \not \equiv 0 \bmod 1}} \sum_{x \in \sT/\fS_S} 1- \cos(2\pi \xi_x).
+ \gamma_i =  \inf_{\substack{S \subset \{1, 2, ..., d\}\\ |S| = i}} \inf_{\substack{\xi \in \sH_S^2(\sT)\\ \xi \not \equiv 0 \bmod 1}} \sum_{x \in \sT/\fS_S} 1- \cos(2\pi \xi_x).
 \end{equation}
 In dimension $d \geq 2$ define the $j$th \emph{spectral factor} 
 \begin{equation}
@@ -296,9 +298,9 @@ The spectral parameters of the $\Dfour$ lattice with reflection planes $\sF_{\Df
 \end{align*}
 The spectral factors are given by
 \begin{align*}
- \Gamma_{\Dfour,0}  &= 52.9428 + \vartheta 0.17\\
- \Gamma_{\Dfour,1}  &= 68.03486+ \vartheta 0.27\\
- \Gamma_{\Dfour,2}  &=  51.3393 + \vartheta 0.17\\
+ \Gamma_{\Dfour,0}  &= 52.9428 + \vartheta 0.17,\\
+ \Gamma_{\Dfour,1}  &= 68.03486+ \vartheta 0.27,\\
+ \Gamma_{\Dfour,2}  &=  51.3393 + \vartheta 0.17,\\
  \Gamma_{\Dfour,3}  &= 27.1201 + \vartheta 0.084.
 \end{align*}
 In particular, the total variation mixing time of the dynamics on the $\Dfour$ lattice is dominated by the three dimensional boundary behavior.
@@ -329,7 +331,7 @@ In particular, for all $d$ sufficiently large, the total variation mixing time o
 Note that, for all $d$ sufficiently large,  $\gamma_{\zed^d} \neq \gamma_{\zed^d,0}$, so that, in the periodic case, the constant $\gamma_{\zed^d}$ which determines the asymptotic spectral gap is not related to the spectral factor $\Gamma_0$ which controls the asymptotic mixing time.
 
 \subsection{Discussion of method}
-The harmonic modulo 1 functions considered in this article are evaluated only as functions on $\bR/\zed$, and hence may be assigned values in $(-\frac{1}{2}, \frac{1}{2}]$. On this interval there are constants $C_1, C_2>0$ such that $C_1 x^2 \leq 1-\cos(2\pi x) \leq C_2 x^2$.  In particular, each $\xi$ considered in the definitions of the spectral factors may be treated as a function in $\ell^2(\sT)$.  
+The harmonic modulo 1 functions considered in this article are evaluated only as functions on $\bR/\zed$, and hence may be assigned values in $\left(-\frac{1}{2}, \frac{1}{2}\right]$. On this interval there are constants $C_1, C_2>0$ such that $C_1 x^2 \leq 1-\cos(2\pi x) \leq C_2 x^2$.  In particular, each $\xi$ considered in the definitions of the spectral factors may be treated as a function in $\ell^2(\sT)$.  
 
 Rather than work with $\xi$, it is more convenient to work with its prevector $\nu = \Delta \xi$, which is integer valued, and hence behaves discretely. The function $\xi$ is recovered from $\nu$ by convolution with the Green's function $g$ on $\sT$, $\xi = g*\nu$.  Since $\Delta$ is bounded from $\ell^2 \to \ell^2$, only prevectors with bounded $\ell^1$ norm need be considered, and in fact, the arguments of \cite{HS19} reduce the determination of the spectral factors to within a prescribed tolerance to a finite calculation.
 
@@ -337,7 +339,7 @@ Given a prevector $\nu$ and a set $S\subset \sT$, the value
 \[
  f_S(\xi) = \sum_{x \in S}1-\cos(2\pi \xi_x)
 \]
-may be estimated from below by constrained minimization programs.  Since the map $\Delta \xi = \nu$ is linear in $\xi$, the constraints are linear.  The objective function $f_S$ is not convex, but $1 - \cos(2\pi \xi_x)$ is convex in the critical region $[-\frac{1}{4}, \frac{1}{4}]$ and may be approximated piecewise linearly from below outside this region.  Enforcing the constraint $\Delta \xi = \nu$ at only finitely many vertices gives a rapid method of obtaining a lower bound for the value of each $\xi$.  Since the linear constraints involve only the neighbors of the vertex at which the constraint is applied, groups of vertices which are two-separated may be treated additively.  This reduces to a connected component analysis of the prevector $\nu$.  Boundedly many configurations are found to have a sufficiently small value, and then all ways of gluing together these candidates are considered.
+may be estimated from below by constrained minimization programs.  Since the map $\Delta \xi = \nu$ is linear in $\xi$, the constraints are linear.  The objective function $f_S$ is not convex, but $1 - \cos(2\pi \xi_x)$ is convex in the critical region $\left[-\frac{1}{4}, \frac{1}{4}\right]$ and may be approximated piecewise linearly from below outside this region.  Enforcing the constraint $\Delta \xi = \nu$ at only finitely many vertices gives a rapid method of obtaining a lower bound for the value of each $\xi$.  Since the linear constraints involve only the neighbors of the vertex at which the constraint is applied, groups of vertices which are two-separated may be treated additively.  This reduces to a connected component analysis of the prevector $\nu$.  Boundedly many configurations are found to have a sufficiently small value, and then all ways of gluing together these candidates are considered.
 
 To calculate the value of $f(\xi)$, a Fourier representation for the Green's function is used.  A general recipe for giving this Fourier representation for the Green's function of any tiling is given in \cite{HS19}, and this recipe is used in the specific examples considered here.
 
@@ -349,7 +351,7 @@ Given a tiling $\sT$ and a vertex $v$, the Green's function of $\sT$ satisfies $
 
 
 Indicate random walk started from $v$ in $\sT$ by
-$Y_{v,0} = v, Y_{v,n+1} = P \cdot Y_{v,n}$. Let $T_v$ be a stopping time for simple random walk started at $v$ in $\sT$ and stopped at the first positive time that it reaches $\Lambda$.  This is the same stopping time as the first positive visit to 0 on the finite state Markov chain given by random walk on $\sT/\Lambda$, and hence $\Prob(T_v > n) \ll e^{-cn}$ for some constant $c > 0$.  Let $\E[T_0] = \alpha > 0$.   
+$Y_{v,0} = v, Y_{v,n+1} = P \cdot Y_{v,n}$. A \emph{stopping time} adapted to the random walk is a random variable $N$ taking values in $\zed_{\geq 0} \cup \{\infty\}$ such that the event $\{N=n\}$ is measurable in the sigma algebra $\sigma(\{Y_{v,0}, Y_{v,1}, ..., Y_{v,n}\})$.  Let $T_v$ be a stopping time for simple random walk started at $v$ in $\sT$ and stopped at the first positive time that it reaches $\Lambda$.  This is the same stopping time as the first positive visit to 0 on the finite state Markov chain given by random walk on $\sT/\Lambda$, and hence $\Prob(T_v > n) \ll e^{-cn}$ for some constant $c > 0$.  Let $\E[T_0] = \alpha > 0$, see e.g. \cite{LPW17} for an introduction to finite state Markov chains and stopping times.
 
 In \cite{HS19} function spaces are defined on $\sT$,
 \begin{align*}
@@ -725,7 +727,7 @@ A lower bound for $Q(S, \nu)$ is the relaxed optimization program with positive 
  \text{subject to:}& \qquad \forall u \in S,\; (\deg u) x_u + \sum_{d(w,u)=1} x_w \geq \nu_u\\
  & \qquad -\frac{1}{2} \leq x_w \leq \frac{1}{2}.
 \end{align*}
-Note that the objective function is convex and with non-degenerate Hessian in the interior with the stronger condition $|x_w|\leq \frac{1}{4}$, and hence has a unique local minima there.  In order to estimate $Q(S, \nu)$ and $P(S, \nu)$ numerically, the range $\frac{1}{4} \leq |x_w| \leq \frac{1}{2}$ was split into several equal size intervals and the objective function was approximated piecewise linearly on these, obtaining a lower bound for the minimum.  The minima were compared with the variables constrained to lie in each interval. Denote $P_j(S, \nu)$ and $Q_j(S, \nu)$ the programs in which both $\left[-\frac{1}{2}, -\frac{1}{4}\right]$ and $\left[\frac{1}{4}, \frac{1}{2}\right]$ are split into $j$ equal size intervals, and objective function interpolating linearly between the values of $c(x)$ on the endpoints.  Note that the minimum of $P_j$ and $Q_j$ on each product of intervals is determined deterministically as a unique interior minimum or boundary value.
+Note that the objective function is convex and with non-degenerate Hessian in the interior with the stronger condition $|x_w|\leq \frac{1}{4}$, and hence has a unique local minima there.  In order to estimate $Q(S, \nu)$ and $P(S, \nu)$ numerically, the range $\frac{1}{4} \leq |x_w| \leq \frac{1}{2}$ was split into several equal size intervals and the objective function was approximated piecewise linearly on these, obtaining a lower bound for the minimum.  The minima were compared with the variables constrained to lie in each interval. Denote $P_j(S, \nu)$ and $Q_j(S, \nu)$ the programs in which both $\left[-\frac{1}{2}, -\frac{1}{4}\right]$ and $\left[\frac{1}{4}, \frac{1}{2}\right]$ are split into $j$ equal size intervals, and objective function interpolating linearly between the values of $c(x)$ on the endpoints.  Note that the minimum of $P_j$ and $Q_j$ on each product of intervals is determined as a unique interior minimum or boundary value.
 In the examples considered in dimensions 3 and higher, $\|\xi\|_2^2$ was optimized rather than $f(\xi)$, and it was demonstrated that the extremal function is the same.  Programs $Q'(S, \nu)$ and $P'(S, \nu)$ have the same constraints, but have objective function
 $\sum_{d(w, S) \leq 1} x_w^2.$  Note that this objective function is convex.
 
@@ -739,6 +741,17 @@ The optimization programs $P, P_j, P', Q, Q_j, Q'$ satisfy the following monoton
  This follows from constraint relaxation.
 \end{proof}
 
+The programs also satisfy the following additivity property.
+\begin{lemma}
+ Let $B(S) = \{u: d(u, S) \leq 1\}$ be the distance 1 enlargement of $S$.  When $S_1, S_2, ..., S_k$ are some sets in $\sT$ whose distance 1 enlargements $B(S_1), B(S_2), ..., B(S_k)$ are pairwise disjoint, then $\sum_{i=1}^k Q(S_i, \nu) \leq f(\xi)$ and $\sum_{i=1}^k Q'(S_i, \nu) \leq \|\xi\|_2^2$.
+\end{lemma}
+\begin{proof}
+ Since the sets of variables are disjoint, the sum of the optimization programs can be considered to be a single optimization program, which is then satisfied by the optimizing solution $\xi$.  The corresponding values for $\xi$ are thus an upper bound on the optimum.
+\end{proof}
+Since the remaining programs $P, P', P_j, Q_j$ are relaxations of $Q$ and $Q'$, the additivity property holds for these as well.
+
+A basic estimate for the value of $Q'$ is as follows.
+
 \begin{lemma}\label{2_norm_opt_lemma}
  Let $G = (V,E)$ be a graph and let $v \in V$ of degree at least 2, with a single edge to each of its neighbors and no self-loops. Let $|\nu_v| = 1$.   The optimization problem $Q'(\{v\}, \nu)$ 
 has value $\frac{1}{\deg(v)(\deg(v) + 1)}$.
@@ -748,15 +761,8 @@ Assume without loss of generality that $\nu_v = 1$. The constraint is $(\deg v) 
 By Lagrange multipliers, there is a scalar $\lambda$ such that  $x_v = \lambda \deg v$ and $x_w = -\lambda$ for all $(v,w) \in E$.  Thus $\lambda = \frac{1}{\deg(v)(\deg(v) +1)}$.  The claim follows, since \begin{equation}\sum_{d(v,w) \leq 1} x_w^2 = \lambda^2 \deg(v)(\deg(v)+1).\end{equation}
 \end{proof}
 
+In particular, combining this lemma with the additivity property above proves that the extremal prevector has a bounded $\ell^1$ norm.
 
-The programs also satisfy the following additivity property.
-\begin{lemma}
- Let $B(S) = \{u: d(u, S) \leq 1\}$ be the distance 1 enlargement of $S$.  When $S_1, S_2, ..., S_k$ are some sets in $\sT$ whose distance 1 enlargements $B(S_1), B(S_2), ..., B(S_k)$ are pairwise disjoint, then $\sum_{i=1}^k Q(S_i, \nu) \leq f(\xi)$ and $\sum_{i=1}^k Q'(S_i, \nu) \leq \|\xi\|_2^2$.
-\end{lemma}
-\begin{proof}
- Since the sets of variables are disjoint, the sum of the optimization programs can be considered to be a single optimization program, which is then satisfied by the optimizing solution $\xi$.  The corresponding values for $\xi$ are thus an upper bound on the optimum.
-\end{proof}
-Since the remaining programs $P, P', P_j$ are relaxations of $Q$ and $Q'$, the additivity property holds for these as well.
 
 The strategy of the arguments is now described as follows.  Say two points $x_i, x_t$ in the support of $\nu$ are  2-path connected, or just connected for short, if there is a sequence of points $x_i = x_0, x_1, ..., x_n = x_t$ in the support of $\nu$, such that the graph distance between $x_i$ and $x_{i+1}$ is at most 2. By the additivity lemma, the value of the optimization programs applied with $S_i$ separated connected components of $\supp \nu$ is additive.  Since the value of each optimization program is translation invariant and, for a fixed $\nu$, monotone in $S$, all connected components with $P$ or $Q$ (resp. $P', Q', P_j, Q_j$) value at most a fixed constant can be enumerated  by starting from a base configuration and adding connected points to the set $S$ one at a time.
 
@@ -1033,7 +1039,7 @@ The following lemma is used to show that no two singletons can have pairwise dis
  The extremal configuration does not have two connected components which are singletons separated by a graph distance greater than 4.
 \end{lemma}
 \begin{proof}
-Suppose that two such singletons exist, say at  $z_1$ and $z_2$.  Since the convex hulls of the distance 1 and 3 neighborhoods of a node in the honeycomb tiling do not contain any further nodes of the tiling (see below), the distance 3 neighborhood of $z_1$ and the distance one neighborhood of $z_2$ are separated by a line.  
+Suppose that two such singletons exist, say at  $z_1$ and $z_2$.  Since the convex hulls of the distance 1 and 3 neighborhoods of a node in the honeycomb tiling do not contain any further nodes of the tiling (see Figure \ref{fig:dist_3_convex_hull}), the distance 3 neighborhood of $z_1$ and the distance one neighborhood of $z_2$ are separated by a line.  
 
 \begin{figure}
    \begin{tikzpicture}[node distance = 1.3cm, auto, place/.style = {circle, %every size=7mm, 
@@ -1079,7 +1085,7 @@ By Lemma \ref{separating_line_lemma}, in fact, the distance one neighborhood of 
 \end{proof}
 
 Thus all of the points have mutual distance at most 4 and at least 3.  
-To be in $C^2(\sT)$, two of the points are positive and two negative, and the two pairs have the same center of mass.  Up to translation and symmetry, there are two types of pairs of points at distance 3, and two types of pairs of points at distance 4.
+To be in $C^2(\sT)$, two of the points are positive and two negative, and the two pairs have the same center of mass.  Up to translation and symmetry, there are two types of pairs of points at distance 3, and two types of pairs of points at distance 4, see Figure \ref{fig:dist_3_4_points}.
 
 \begin{figure}
   \begin{tikzpicture}[node distance = 1.3cm, auto, place/.style = {circle, %every size=7mm,
@@ -1122,7 +1128,7 @@ To be in $C^2(\sT)$, two of the points are positive and two negative, and the tw
   The following signed optimization has value $Q(\{0,v\}, 1) \geq 3.79$. If $\nu_0 = \nu_{v_1} = 1$ and $\nu_v = -1$, $Q(\{0,v,v_1\}, \nu) \geq 2.59$.
  \end{lemma}
 Using this lemma, it follows that the sign of the node at position $v$ is opposite of the sign of the nodes at 0 and $v_1$, since $Q(\{0,v\},1) + P(\{0,v\},1) + P(\{0\},1) \geq 3.79 + 1.87 + 1.35>6$. Say $\nu_{v}=-1$. Also, the pair of adjacent nodes have opposite sign, since $Q(\{0,v\}, 1) + Q(\{0,v,v_1\},\nu) + P(\{0\},1) \geq 3.79 + 2.59 + 1.35 > 6$. Fix the size 3 configuration at $\{0, v, v_1\}$ with $\nu_0 = \nu_{v_1} = 1$, $\nu_v = -1$.  This configuration has signed sum $v_1 - v$, and the singleton has sign $-1$.  Since the pair has sum which is a vector of length $\|v\|$, the possible locations for the singleton are displayed for the net sum to be 0.
-For the configuration to have mean 0, this places the singleton on some corner of the hexagon with center $v_1-v$, but no such node has distance at least 3 from the configuration $\{0, v, v_1\}$.
+For the configuration to have mean 0, this places the singleton on some corner of the hexagon with center $v_1-v$, but no such node has distance at least 3 from the configuration $\{0, v, v_1\}$, see Figure \ref{fig:0_v_v1_configuration}.
 
 \begin{figure}
   \begin{tikzpicture}[node distance = 1.3cm, auto, place/.style = {circle, %every size=7mm,
@@ -1231,7 +1237,7 @@ The middle picture may now be ruled out as follows. Fix an orientation  by setti
  \end{figure}
  
  
-Note that this configuration contains all of the nodes in its convex hull.  In particular, in the picture below one of the two red nodes is not used in the optimization of Lemma \ref{diameter_hex_lemma}, since if both red nodes were used, one of the blue nodes in the figure would be used, also, which is impossible since the singletons have distance at least 3 from the blue nodes.
+Note that this configuration contains all of the nodes in its convex hull.  In particular, in Figure \ref{fig:red_blue_figure} one of the two red nodes is not used in the optimization of Lemma \ref{diameter_hex_lemma}, since if both red nodes were used, one of the blue nodes in the figure would be used, also, which is impossible since the singletons have distance at least 3 from the blue nodes.
 
 
  
@@ -1378,7 +1384,7 @@ To be in $C^2(\sT)$, this configuration must be paired with a configuration whic
 
 
 
-This reduces to the case of adding a singleton to a configuration of size 4.  There are four configurations of size 4 whose $P$ value may be paired with a singleton.  Many of the signs of the vertices are determined by the fact that a node of value 2 may not appear next to a node of the same sign.  The configurations are, with $\epsilon$ representing an ambiguous sign,
+This reduces to the case of adding a singleton to a configuration of size 4.  There are four configurations of size 4 whose $P$ value may be paired with a singleton.  Many of the signs of the vertices are determined by the fact that a node of value 2 may not appear next to a node of the same sign.  The configurations are presented in Figure \ref{fig:epsilon_configurations}, with $\epsilon$ representing an ambiguous sign.
 
 
 \begin{figure}
@@ -1454,97 +1460,6 @@ This reduces to the case of adding a singleton to a configuration of size 4.  Th
  \end{figure}
  This did not achieve the optimum.
 
-%\subsubsection{Dice tiling case}\label{dice_section}
-
-% Let $v_1 = (1,0)$ and $v_2 = \left(\frac{1}{2}, \frac{\sqrt{3}}{2}\right)$, $v = \frac{1}{3}(v_1+v_2)$. The vertices of the dice tiling are identified with points $n_1 v_1 + n_2 v_2 + n_3 v$ where $n_1, n_2 \in \zed$ and $n_3  \in \{-1,0,1\}$.  The degree 6 vertices form the lattice $n_1v_1 + n_2v_2$.  The optimal function is given by $\xi_0 = G*\nu_0$, where
-% \begin{equation}
-%  \nu_0 = \delta_0 + \delta_{v_1} - \delta_v - \delta_{v_1-v}.
-% \end{equation}
-%This has value
-%\begin{equation}
-% \gamma = f(\xi_0) = 3.26(1).
-%\end{equation}
-
-%   \begin{tikzpicture}[node distance = 1.3cm, auto, place/.style = {circle, every size=7mm, thick, draw=blue!75, fill=blue!20}]
-%  \draw (0, 0)--(.86602540378, .5);
-%  \draw (0, 0)--(0,1);
-%  \draw (0, 0)--(-.86602540378, .5);
-%  \draw (0, 0)--(-.86602540378, -.5);
-%  \draw (0, 0)--(0,-1);
-%  \draw (0, 0)--(.86602540378, -.5);
-%  \draw (.86602540378, .5)--(1.73205080757,0);
-%  \draw (.86602540378, -.5)--(1.73205080757,0);
-%  \draw (.86602540378, .5)--(.86602540378, 1.5);
-%  \draw (0, 1)--(.86602540378, 1.5);
-%  \draw (0, 1)--(-.86602540378, 1.5);
-%  \draw (.86602540378, 1.5)--(0,2);
-%  \draw (-.86602540378, 1.5)--(0,2);
-%  \draw (-.86602540378, .5)--(-1.73205080757,0);
-%  \draw (-.86602540378, -.5)--(-1.73205080757,0);
-%  \draw (-.86602540378, .5)--(-.86602540378, 1.5);
-%  \draw (-.86602540378, -.5)--(-.86602540378, -1.5);
-%  \draw (.86602540378, -.5)--(.86602540378, -1.5);
-%  \draw (.86602540378, -1.5)--(0,-1);
-%  \draw (-.86602540378, -1.5)--(0,-1);
-%  \draw (1.73205080757,0)--(1.73205080757,1);
-%  \draw (-1.73205080757,0)--(-1.73205080757,1);
-%  \draw (1.73205080757,0)--(1.73205080757,-1);
-%  \draw (-1.73205080757,0)--(-1.73205080757,-1);
-%  \draw (-1.73205080757,-1)--(-.86602540378, -1.5);
-%  \draw (1.73205080757,-1)--(.86602540378, -1.5);
-%  \draw (-1.73205080757,1)--(-.86602540378, 1.5);
-%  \draw (1.73205080757,1)--(.86602540378, 1.5);
-%  \draw (0,-2)--(-.86602540378, -1.5);
-%  \draw (0,-2)--(.86602540378, -1.5);
-%  \draw (-1.73205080757,-2)--(-.86602540378, -1.5);
-%  \draw (1.73205080757,-2)--(.86602540378, -1.5);
-%  \draw (-1.73205080757,2)--(-.86602540378, 1.5);
-%  \draw (1.73205080757,2)--(.86602540378, 1.5);
-%  \draw (1.73205080757,2)--(3*.86602540378, 1.5);
-%  \draw (1.73205080757,1)--(3*.86602540378, 1.5);
-%  \draw (1.73205080757,0)--(3*.86602540378, .5);
-%  \draw (1.73205080757,0)--(3*.86602540378, -.5);
-%  \draw (1.73205080757,-1)--(3*.86602540378, -1.5);
-%  \draw (1.73205080757,-2)--(3*.86602540378, -1.5);
-%  \draw (3*.86602540378,-.5)--(3*.86602540378, -1.5);
-%  \draw (3*.86602540378,.5)--(3*.86602540378, 1.5);
-%   \node[place] at (0,0)  (lower)[label=60:$1$]  {};
-%   \node[place] at (.86602540378,.5)  (lower)[label=$-1$]  {};
-%   \node[place] at (.86602540378,-.5)  (lower)[label=$-1$]  {};
-%   \node[place] at (1.73205080757,0)  (lower)[label=60:$1$]  {};
-   
-   
-% \end{tikzpicture}
-
-%Let $\xi = G*\nu$ with $\|\xi\|_\infty \leq \frac{1}{2}$. We first show that if $f(\xi)$ is the minimizer then $\|\nu\|_\infty = 1$. 
-%\begin{lemma}
-% The following optimization programs have the assigned values.  If $\nu_0 = 4$, $P(\{0\}, \nu) = 5$.  If $\nu_v = 2$, $P(\{v\}, \nu) = 3.5.$
-%\end{lemma}
-%\begin{proof}
-%The solution of these optimization problems has $x_0$ and $x_v$ the largest value, since otherwise swapping the value with larger value improves the constraint.  By Lagrange multipliers, those values at distance 1 from the central point either are on the boundary, so have value 0 or $\frac{1}{2}$, or have a common value of $\sin 2\pi x_w$, so are symmetric about $\frac{1}{4}$.    By averaging, in both cases the largest $x$ value is at least $\frac{1}{3}$, hence $x_0, x_v \geq \frac{1}{3}$, so that $1 - \cos(2\pi x_0)$, $1- \cos(2\pi x_v) \geq 1.5$.  A pair of points symmetric about $\frac{1}{4}$ have constraints that sum to $\frac{1}{2}$ and values of $1-\cos(2\pi x_w)$ which sum to 2.  Hence, there is at most one such pair in the case of the optimization program centered at 0, and in fact this is impossible in the case of the optimization program at $v$.  By convexity, none of the $x_v$ are 0, and hence, after possibly removing a pair which are symmetric about $\frac{1}{4}$, the problem is determined by a single parameter.  The optimal values may now be determined by calculus.
-%\end{proof}
-%This lemma proves that the optimal $\nu$ has values bounded by 1 at nodes of degree 3, and values bounded by 3 at nodes of degree 6.
-
-%The following optimization problems were solved numerically in SciPy.
-%\begin{lemma}
-% The following signed optimization programs satisfy the claimed bounds. If $\nu_0 = 3$ and $\nu_v = 1$ then $Q(\{0, v\}, \nu) \geq 4.90$.  If $\nu_0 = 2$ and $\nu_v = 1$ then $Q(\{0, v\}, \nu) \geq 3.73$. 
-
-%\end{lemma}
-
-%The following optimization programs were solved numerically in SciPy.
-%\begin{lemma}
-% Let $S = \{w \in \sT: d(w,0)=1\}$.  For all mappings $\nu:S \to \{-1,0\}$, if $\nu_0 = 3$, $Q(S \cup \{0\}, \nu) \geq 4.4$.  If $\nu_0 = 2$, $Q(S \cup \{0\}, \nu) \geq 3.4$.
-%\end{lemma}
-
-%Combined, the previous lemmas prove that a choice of $\nu$ which is a minimizer does not have a node of height $\geq 2$.
-
-%\begin{proof}[Proof of Theorem \ref{spectral_gap_calc_theorem}, Dice case]
-
- 
-
-
-%\end{proof}
-
 \subsubsection{Face centered cubic lattice case} \label{fcc_section}
 
 
@@ -1619,7 +1534,7 @@ Let the linear constraints be written as $\ell_i \cdot x = \nu_{z_i}$. Thus $\el
 \end{equation}
 or
 \begin{equation}
- 156(I+A) \begin{pmatrix} \lambda_1\\ \lambda_2\\ \lambda_3\\\lambda_4 \end{pmatrix} = \begin{pmatrix} \nu_{z_1}\\ \nu_{z_2}\\ \nu_{z_3}\\ \nu_{z_4} \end{pmatrix}.
+ 156(I+A) \begin{pmatrix} \lambda_1\\ \lambda_2\\ \lambda_3\\\lambda_4 \end{pmatrix} = \begin{pmatrix} \nu_{z_1}\\ \nu_{z_2}\\ \nu_{z_3}\\ \nu_{z_4} \end{pmatrix}
 \end{equation}
 where $A$ has zeros on the diagonal and has row sums bounded in size by $\frac{42}{156}$.  Let $\lambda_i' = 156 \lambda_i $ and rewrite this as
 \begin{equation}
@@ -1787,14 +1702,14 @@ If $x$ has graph distance 3 or more from the boundary hyperplane $\sP_1$ then th
 \begin{equation}
  \nu^*(0, -1, 0, 0) = -1, \qquad \nu^*(-1, 0, 0, 0) = 1, \qquad \nu^*(0, 1, 0, 0) = -1.
 \end{equation}
-The 2-norm is $\|\xi^*\|_2^2 = 0.0019800(3).$ Calculating as in the case of $\gamma_1$,
+The 2-norm is $\|\xi^*\|_2^2 = 0.0019800(3).$ Calculating as in the case of $\gamma_{\Dfour, 1}$,
 \begin{align*}
 \gamma_{\Dfour,2}&= 2\pi^2 \|\xi^*\|_2^2 - \frac{\pi^4}{3}\|\xi^*\|_2^4 + \vartheta \frac{\pi^4}{3}\|\xi^*\|_2^4\\
  &=0.0389569 +\vartheta 0.00013.
 \end{align*}
 Thus,
 \begin{align*}
- \Gamma_{\Dfour,2} =\frac{2}{\gamma_2} =  51.3393 + \vartheta 0.17.
+ \Gamma_{\Dfour,2} =\frac{2}{\gamma_{\Dfour, 2}} =  51.3393 + \vartheta 0.17.
 \end{align*}
 
 To verify that $\xi^*$ is extremal, let $\xi$ be harmonic modulo 1 with reflection anti-symmetry in $\sP_1$ and $\sP_2$ and let $\nu = \Delta \xi$.  To rule out that $\xi$ is extremal it suffices to check by Lemma \ref{2_norm_lemma} that $\|\xi\|_2^2 \geq \alpha$ with 
@@ -1813,7 +1728,7 @@ It is shown that the minimizer is $\nu^* = \delta_{(1,0,1,0)}$ with $\xi^* = g*\
 \end{equation*}
 Thus,
 \begin{equation*}
- \Gamma_{\Dfour,3} = \frac{1}{\gamma_3} = 27.1201 + \vartheta 0.084
+ \Gamma_{\Dfour,3} = \frac{1}{\gamma_{\Dfour, 3}} = 27.1201 + \vartheta 0.084
 \end{equation*}
 
 Arguing as above, we may assume that $|\supp \nu^*| = 1$, and that the point $x = (x_1, x_2, x_3, x_4)$ has distance 1 to one hyperplane, say, without loss, that $x_1 + x_2 = 1$.  Also, the distance to the next closest hyperplane is at most 2, so say $x_1 - x_2 = 1$ or $x_1 - x_2 = 2$.  Now considering $\Delta \xi$ at $(0,0,0,0), (1,1,0,0), (1,-1,0,0), (2,0,0,0)$ or $(0,0,0,0), (1,1,0,0), (2,-2,0,0), (3,-1,0,0)$ and their distance 2 neighborhood implies that the distance to $\sP_3$ is at most 2.  The three possibilities are considered, and $\nu^*$ gives the optimum. 
@@ -1863,7 +1778,7 @@ which is valid for $d \geq 2$.
 The following lemma estimates $\|\xi\|_2^2$ asymptotically when $\nu$ is a singleton.  This example controls the mixing time for all $d$ sufficiently large.
 
 \begin{lemma}\label{Greens_fn_evaluation_d}
- Let $d \geq 5$ let $0 \leq k \leq d$ and let $\nu:\zed^d \to \zed$ which has reflection anti-symmetry in the first $k$ coordinate hyperplanes $\sP_1, ..., \sP_k$. Let $\fS_k$ be the group of reflections in $\sP_1, ..., \sP_k$ and suppose that modulo $\fS_k$, $\nu$ is a point mass. Let $\xi = g*\nu$.  Then as $d \to \infty$,
+ Let $d \geq 5$, let $0 \leq k \leq d$, and let $\nu:\zed^d \to \zed$ which has reflection anti-symmetry in the first $k$ coordinate hyperplanes $\sP_1, ..., \sP_k$. Let $\fS_k$ be the group of reflections in $\sP_1, ..., \sP_k$ and suppose that modulo $\fS_k$, $\nu$ is a point mass. Let $\xi = g*\nu$.  Then as $d \to \infty$,
  \begin{equation}
   \|\xi\|_{2, \zed^d/\fS_k}^2 = \frac{1}{4d^2}\left(1 + \frac{3}{2d} + O_k\left(d^{-2}\right)\right).
  \end{equation}
@@ -2100,6 +2015,10 @@ Deepak Dhar, and Majumdar, Satya N.
 Dhar, Deepak, and Sadhu, Tridib. 
 \newblock ``Pattern formation in growing sandpiles with multiple sources or sinks.'' \emph{J. Stat. Phys.} 138 (2010), no. 4-5, 815--837. 
 
+\bibitem{D96}
+Diaconis, Persi. 
+\newblock ``The cutoff phenomenon in finite Markov chains." \newblock \emph{Proceedings of the National Academy of Sciences} 93.4 (1996): 1659-1664.
+
 \bibitem{DS87}
 Diaconis, Persi, and Mehrdad Shahshahani. 
 \newblock ``Time to reach stationarity in the Bernoulli--Laplace diffusion model." 
@@ -2161,6 +2080,10 @@ Kalinin, Nikita, and Mikhail Shkolnikov.
 Lawler, Gregory F., and Vlada Limic. 
 \newblock \emph{Random walk: a modern introduction.}
 \newblock Vol. 123. Cambridge University Press, 2010.
+
+\bibitem{LPW17}
+Levin, David A., and Yuval Peres. 
+\newblock \emph{Markov chains and mixing times.} Vol. 107. American Mathematical Soc., 2017.
 
 \bibitem{LPS16}
 Levine, Lionel, Wesley Pegden, and Charles K. Smart. 
